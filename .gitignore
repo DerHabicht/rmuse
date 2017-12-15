@@ -11,3 +11,5 @@ public/assets/
 rmuse
 .vscode/
 .grifter/
+*.key
+*.key.pub
