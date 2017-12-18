@@ -56,8 +56,8 @@ func AuthCreateSession(c buffalo.Context) error {
 	}
 
 	res := struct {
-		token string
-		username string
+		Token string    `json:"token"`
+		Username string `json:"username"`
 	}{
 		ts,
 		u.Username,
