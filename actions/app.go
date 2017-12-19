@@ -30,6 +30,7 @@ func App() *buffalo.App {
 		app.Use(ssl.ForceSSL(secure.Options{
 			SSLRedirect:     ENV == "production",
 			SSLProxyHeaders: map[string]string{"X-Forwarded-Proto": "https"},
+			SSLHost:         "localhost:8085",
 		}))
 
 		// Set the request content type to JSON
