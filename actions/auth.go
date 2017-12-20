@@ -16,7 +16,7 @@ import (
 func AuthCreateSession(c buffalo.Context) error {
 	bad := func() error {
 		m := struct {
-			Message string
+			Message string `json:"error"`
 		}{
 			"invalid email/password",
 		}

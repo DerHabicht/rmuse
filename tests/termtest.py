@@ -1,8 +1,8 @@
 import requests
 
 api = {
-    "login": "/api/v1/login",
-    "user":  "/api/v1/user"
+    "login": "/api/1/login",
+    "user":  "/api/1/user"
 }
 
 u = {

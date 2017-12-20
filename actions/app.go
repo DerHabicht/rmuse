@@ -48,7 +48,7 @@ func App() *buffalo.App {
 		app.GET("/", HomeHandler)
 
 		// API V1 Grouping
-		g := app.Group("/api/v1")
+		g := app.Group("/api/1")
 
 		// Login
 		g.POST("/login", AuthCreateSession)
