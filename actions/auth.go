@@ -82,7 +82,7 @@ func VerifyToken(next buffalo.Handler) buffalo.Handler {
 			}
 
 			// key
-			sk, err := ioutil.ReadFile(envy.Get("JWT_KEY_PATH", ""))
+			sk, err := ioutil.ReadFile(envy.Get("JWT_KEY_PATH", "jwtRS256.key"))
 
 			if err != nil {
 				return nil, fmt.Errorf("could not open jwt key, %v", err)
@@ -102,7 +102,12 @@ func VerifyToken(next buffalo.Handler) buffalo.Handler {
 			logrus.Errorf("claims: %v", claims)
 
 			// retrieving user from db
-			u, err := models.GetUserByID(tx, claims["jti"].(uuid.UUID))
+			id, err := uuid.FromString(claims["jti"].(string))
+			if err != nil {
+				return c.Error(http.StatusUnauthorized, fmt.Errorf("could not identify the user"))
+			}
+
+			u, err := models.GetUserByID(tx, id)
 
 			if err != nil {
 				return c.Error(http.StatusUnauthorized, fmt.Errorf("could not identify the user"))
