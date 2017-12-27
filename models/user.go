@@ -59,6 +59,17 @@ func (u *User) Create(tx *pop.Connection) (*validate.Errors, error) {
 	return tx.ValidateAndCreate(u)
 }
 
+func GetUserByID(tx *pop.Connection, id uuid.UUID) (*User, error) {
+	u := User{}
+	err := tx.Find(&u, id)
+
+	if err != nil {
+		return nil, fmt.Errorf("could not find user %v", err)
+	}
+
+	return &u, nil
+}
+
 // Users is not required by pop and may be deleted
 type Users []User
 

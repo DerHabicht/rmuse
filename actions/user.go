@@ -5,6 +5,7 @@ import (
 	"github.com/derhabicht/rmuse/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/markbates/pop"
+	"net/http"
 )
 
 // UserCreate default implementation.
@@ -22,7 +23,7 @@ func UserCreate(c buffalo.Context) error {
 	}
 
 	if verrs.HasAny() {
-		return c.Render(422, r.JSON(verrs))
+		return c.Render(http.StatusUnprocessableEntity, r.JSON(verrs))
 	}
 
 	// Now that the user has been created, we need to drop the password from the user struct so we don't end up
@@ -40,5 +41,9 @@ func UserCreate(c buffalo.Context) error {
 		ts,
 	}
 
-	return c.Render(200, r.JSON(res))
+	return c.Render(http.StatusOK, r.JSON(res))
+}
+
+func UserRead(c buffalo.Context) error {
+	return c.Render(http.StatusOK, r.JSON(c.Value("user")))
 }

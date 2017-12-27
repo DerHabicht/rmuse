@@ -48,13 +48,18 @@ func App() *buffalo.App {
 		app.GET("/", HomeHandler)
 
 		// API V1 Grouping
-		g := app.Group("/api/1")
+		v1 := app.Group("/api/1")
+
+		// Add middleware
+		v1.Use(VerifyToken)
+		v1.Middleware.Skip(VerifyToken, AuthCreateSession, UserCreate)
 
 		// Login
-		g.POST("/login", AuthCreateSession)
+		v1.POST("/login", AuthCreateSession)
 
 		// Users
-		g.POST("/user", UserCreate)
+		v1.GET("/user", UserRead)
+		v1.POST("/user", UserCreate)
 	}
 
 	return app
