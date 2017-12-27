@@ -30,6 +30,7 @@ func App() *buffalo.App {
 		app.Use(ssl.ForceSSL(secure.Options{
 			SSLRedirect:     ENV == "production",
 			SSLProxyHeaders: map[string]string{"X-Forwarded-Proto": "https"},
+			SSLHost:         "localhost:8085",
 		}))
 
 		// Set the request content type to JSON
@@ -47,7 +48,7 @@ func App() *buffalo.App {
 		app.GET("/", HomeHandler)
 
 		// API V1 Grouping
-		g := app.Group("/api/v1")
+		g := app.Group("/api/1")
 
 		// Login
 		g.POST("/login", AuthCreateSession)
