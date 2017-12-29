@@ -46,19 +46,6 @@ CREATE TABLE schema_migration (
 ALTER TABLE schema_migration OWNER TO "the-hawk";
 
 --
--- Name: sessions; Type: TABLE; Schema: public; Owner: the-hawk
---
-
-CREATE TABLE sessions (
-    id uuid NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
-ALTER TABLE sessions OWNER TO "the-hawk";
-
---
 -- Name: users; Type: TABLE; Schema: public; Owner: the-hawk
 --
 
@@ -73,14 +60,6 @@ CREATE TABLE users (
 
 
 ALTER TABLE users OWNER TO "the-hawk";
-
---
--- Name: sessions sessions_pkey; Type: CONSTRAINT; Schema: public; Owner: the-hawk
---
-
-ALTER TABLE ONLY sessions
-    ADD CONSTRAINT sessions_pkey PRIMARY KEY (id);
-
 
 --
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: the-hawk
