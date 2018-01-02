@@ -3,9 +3,7 @@ package actions
 import (
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo/middleware"
-	"github.com/gobuffalo/buffalo/middleware/ssl"
 	"github.com/gobuffalo/envy"
-	"github.com/unrolled/secure"
 
 	"github.com/derhabicht/rmuse/models"
 	"github.com/gobuffalo/x/sessions"
@@ -26,12 +24,6 @@ func App() *buffalo.App {
 			SessionStore: sessions.Null{},
 			SessionName:  "_rmuse_session",
 		})
-		// Automatically redirect to SSL
-		app.Use(ssl.ForceSSL(secure.Options{
-			SSLRedirect:     ENV == "production",
-			SSLProxyHeaders: map[string]string{"X-Forwarded-Proto": "https"},
-			SSLHost:         "localhost:8085",
-		}))
 
 		// Set the request content type to JSON
 		app.Use(middleware.SetContentType("application/json"))
