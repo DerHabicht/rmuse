@@ -68,7 +68,9 @@ CREATE TABLE users (
     email character varying(255) NOT NULL,
     password_hash character varying(255) NOT NULL,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    first_name character varying(255),
+    last_name character varying(255)
 );
 
 

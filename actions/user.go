@@ -36,7 +36,7 @@ func UserCreate(c buffalo.Context) error {
 	}
 
 	res := struct {
-		token string
+		Token string `json:"token"`
 	}{
 		ts,
 	}
