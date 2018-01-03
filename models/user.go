@@ -12,9 +12,7 @@ import (
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
 	"github.com/markbates/validate/validators"
-	"github.com/pkg/errors"
 	"github.com/satori/go.uuid"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
@@ -25,7 +23,6 @@ type User struct {
 	Username     string    `json:"username"   db:"username"`
 	FirstName    string    `json:"firstname"  db:"first_name"`
 	LastName     string    `json:"lastname"   db:"last_name"`
-	Password     string    `json:"password"   db:"-"`
 	PasswordHash string    `json:"-"          db:"password_hash"`
 }
 
@@ -53,11 +50,7 @@ func (u *User) CreateJWTToken() (string, error) {
 
 func (u *User) Create(tx *pop.Connection) (*validate.Errors, error) {
 	u.Email = strings.ToLower(u.Email)
-	ph, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return validate.NewErrors(), errors.WithStack(err)
-	}
-	u.PasswordHash = string(ph)
+
 	return tx.ValidateAndCreate(u)
 }
 

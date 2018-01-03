@@ -1,19 +1,41 @@
 package actions
 
 import (
-	"github.com/pkg/errors"
+	"net/http"
+
 	"github.com/derhabicht/rmuse/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/markbates/pop"
-	"net/http"
+	"github.com/pkg/errors"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // UserCreate default implementation.
 func UserCreate(c buffalo.Context) error {
-	u := &models.User{}
+	type argument struct{
+		FirstName string `json:"firstname"`
+		LastName  string `json:"lastname"`
+		Email     string `json:"email"`
+		Username  string `json:"username"`
+		Password  string `json:"password"`
+	}
 
-	if err := c.Bind(u); err != nil {
+	arg := &argument{}
+	if err := c.Bind(arg); err != nil {
 		return errors.WithStack(err)
+	}
+
+	ph, err := bcrypt.GenerateFromPassword([]byte(arg.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	u := &models.User {
+		FirstName:    arg.FirstName,
+		LastName:     arg.LastName,
+		Email:        arg.Email,
+		Username:     arg.Username,
+		PasswordHash: string(ph),
 	}
 
 	tx := c.Value("tx").(*pop.Connection)
@@ -25,10 +47,6 @@ func UserCreate(c buffalo.Context) error {
 	if verrs.HasAny() {
 		return c.Render(http.StatusUnprocessableEntity, r.JSON(verrs))
 	}
-
-	// Now that the user has been created, we need to drop the password from the user struct so we don't end up
-	// sending the password back in our response later.
-	u.Password = ""
 
 	ts, err := u.CreateJWTToken()
 	if err != nil {
