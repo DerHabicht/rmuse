@@ -77,7 +77,8 @@ func VerifyToken(next buffalo.Handler) buffalo.Handler {
 		tokenString := c.Request().Header.Get("Authorization")
 
 		if len(tokenString) == 0 {
-			return c.Error(http.StatusUnauthorized, fmt.Errorf("no token set in headers"))
+			c.Set("user", nil)
+			return next(c)
 		}
 
 		// parsing token
