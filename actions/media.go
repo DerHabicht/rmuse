@@ -3,16 +3,34 @@ package actions
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/gobuffalo/buffalo"
 	"github.com/markbates/pop"
 	"github.com/pkg/errors"
 
 	"github.com/derhabicht/rmuse/models"
+	"github.com/satori/go.uuid"
 )
 
 // MediaGet default implementation.
 func MediaGet(c buffalo.Context) error {
+	var media []*models.Medium
+	tx := c.Value("tx").(*pop.Connection)
+
+	if p, ok := c.Params().(url.Values)["id"]; ok {
+		for _, uuidStr := range p {
+			uuid, err := uuid.FromString(uuidStr)
+			if err == nil {
+				m, err := models.GetMediumByID(tx, uuid)
+				if err == nil {
+					media = append(media, m)
+				}
+			}
+		}
+		return c.Render(http.StatusOK, r.JSON(media))
+	}
+
 	return c.Render(200, r.HTML("media/get.html"))
 }
 

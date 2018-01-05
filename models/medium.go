@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/markbates/pop"
@@ -22,6 +23,17 @@ type Medium struct {
 
 func (m *Medium) Create(tx *pop.Connection) (*validate.Errors, error) {
 	return tx.ValidateAndCreate(m)
+}
+
+func GetMediumByID(tx *pop.Connection, id uuid.UUID) (*Medium, error) {
+	m := Medium{}
+	err := tx.Find(&m, id)
+
+	if err != nil {
+		return nil, fmt.Errorf("could not find media %v", err)
+	}
+
+	return &m, nil
 }
 
 // String is not required by pop and may be deleted
