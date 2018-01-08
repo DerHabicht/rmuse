@@ -38,7 +38,7 @@ func (as *ActionSuite) Test_User_Create() {
 	as.NoError(err)
 }
 
-func (as *ActionSuite) Test_Empty_Username_Create() {
+func (as *ActionSuite) Test_User_Empty_Username_Create() {
 	arg := struct{
 		FirstName string `json:"firstname"`
 		LastName  string `json:"lastname"`
@@ -58,7 +58,7 @@ func (as *ActionSuite) Test_Empty_Username_Create() {
 	as.Contains(res.Body.String(),"username is empty")
 }
 
-func (as *ActionSuite) Test_Empty_Email_Create() {
+func (as *ActionSuite) Test_User_Empty_Email_Create() {
 	arg := struct{
 		FirstName string `json:"firstname"`
 		LastName  string `json:"lastname"`
@@ -78,7 +78,7 @@ func (as *ActionSuite) Test_Empty_Email_Create() {
 	as.Contains(res.Body.String(),"email is empty")
 }
 
-func (as *ActionSuite) Test_Duplicate_Username_Create() {
+func (as *ActionSuite) Test_User_Duplicate_Username_Create() {
 	ph, err := bcrypt.GenerateFromPassword([]byte("goodpassword"), bcrypt.DefaultCost)
 	as.NoError(err)
 
@@ -115,7 +115,7 @@ func (as *ActionSuite) Test_Duplicate_Username_Create() {
 	as.NoError(err)
 }
 
-func (as *ActionSuite) Test_Duplicate_Email_Create() {
+func (as *ActionSuite) Test_User_Duplicate_Email_Create() {
 	ph, err := bcrypt.GenerateFromPassword([]byte("goodpassword"), bcrypt.DefaultCost)
 	as.NoError(err)
 

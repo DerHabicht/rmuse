@@ -7,10 +7,9 @@ import (
 
 	"github.com/gobuffalo/buffalo"
 	"github.com/markbates/pop"
-	"github.com/pkg/errors"
+	"github.com/satori/go.uuid"
 
 	"github.com/derhabicht/rmuse/models"
-	"github.com/satori/go.uuid"
 )
 
 // MediaGet default implementation.
@@ -45,13 +44,13 @@ func MediaUpload(c buffalo.Context) error {
 	u, ok := c.Value("user").(*models.User)
 
 	if !ok || u == nil {
-		return c.Error(http.StatusUnauthorized, fmt.Errorf("must be logged in to upload media"))
+		return c.Render(http.StatusUnauthorized, r.JSON("must be logged in to upload files"))
 	}
 
 	m := &models.Medium{}
 
 	if err := c.Bind(m); err != nil {
-		return errors.WithStack(err)
+		return c.Error(http.StatusInternalServerError, fmt.Errorf("unable to bind medium %v", err))
 	}
 
 	m.User = u.ID
@@ -63,7 +62,7 @@ func MediaUpload(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	verrs, err := m.Create(tx)
 	if err != nil {
-		return errors.WithStack(err)
+		return c.Error(http.StatusInternalServerError, fmt.Errorf("unable to create medium %v", err))
 	}
 
 	if verrs.HasAny() {

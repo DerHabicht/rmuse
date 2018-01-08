@@ -8,6 +8,10 @@ func (as *ActionSuite) Test_Media_Upload_Logged_In() {
 	as.Fail("Not Implemented!")
 }
 
+func (as *ActionSuite) Test_Media_Upload_Follower() {
+	as.Fail("Not Implemented!")
+}
+
 func (as *ActionSuite) Test_Media_Upload_Duplicate_URI() {
 	as.Fail("Not Implemented!")
 }
