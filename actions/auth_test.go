@@ -60,8 +60,13 @@ func (as *ActionSuite) Test_Good_User_Login() {
 	}
 
 	res := as.JSON("/api/1/login").Post(arg)
-	as.Contains(res.Body.String(), "token")
 	as.Equal(http.StatusOK, res.Code)
+	as.Contains(res.Body.String(), "token")
+	as.Contains(res.Body.String(), "Oreo")
+	as.Contains(res.Body.String(), "Hawk")
+	as.Contains(res.Body.String(), "cat@example.com")
+	as.Contains(res.Body.String(), "oreo")
+	as.NotContains(res.Body.String(), "password")
 
 	err = as.DB.Destroy(&u)
 	as.NoError(err)
