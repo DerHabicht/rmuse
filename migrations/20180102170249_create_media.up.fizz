@@ -5,3 +5,10 @@ create_table("media", func(t) {
 	t.Column("filetype",   "string", {})
 	t.Column("permission", "string", {})
 })
+
+create_table("follows", func(t) {
+    t.Column("follower", "uuid", {"primary": true})
+    t.Column("followed", "uuid", {})
+})
+
+add_column("users", "avatar",  "uuid", {"null": true})

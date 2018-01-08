@@ -25,12 +25,32 @@ func (m *Medium) Create(tx *pop.Connection) (*validate.Errors, error) {
 	return tx.ValidateAndCreate(m)
 }
 
-func GetMediumByID(tx *pop.Connection, id uuid.UUID) (*Medium, error) {
+func GetMediumByID(tx *pop.Connection, id uuid.UUID, u *User) (*Medium, error) {
 	m := Medium{}
 	err := tx.Find(&m, id)
 
 	if err != nil {
 		return nil, fmt.Errorf("could not find media %v", err)
+	}
+
+	if u == nil && m.Permission != "public" {
+		return nil, fmt.Errorf("user is not authorized for media")
+	}
+
+	if u != nil && u.ID != m.User {
+		if m.Permission == "follower" {
+			f := struct {
+				follower uuid.UUID `db: follower`
+				followed uuid.UUID `db: followed`
+			}{}
+
+			query := tx.Where("follower = ? AND followed = ?", u.ID, m.User)
+			err := query.First(&f)
+
+			if err != nil {
+				return nil, fmt.Errorf("user is not authorized for media")
+			}
+		}
 	}
 
 	return &m, nil

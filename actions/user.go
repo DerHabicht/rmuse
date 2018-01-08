@@ -6,7 +6,6 @@ import (
 	"github.com/derhabicht/rmuse/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/markbates/pop"
-	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -22,12 +21,12 @@ func UserCreate(c buffalo.Context) error {
 
 	arg := &argument{}
 	if err := c.Bind(arg); err != nil {
-		return errors.WithStack(err)
+		return c.Render(http.StatusUnprocessableEntity, r.JSON("{\"error\":\"malformed argument body\"}"))
 	}
 
 	ph, err := bcrypt.GenerateFromPassword([]byte(arg.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return errors.WithStack(err)
+		return c.Render(http.StatusInternalServerError, r.JSON("{\"error\":\"cannot hash password\"}"))
 	}
 
 	u := &models.User {
@@ -41,7 +40,8 @@ func UserCreate(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	verrs, err := u.Create(tx)
 	if err != nil {
-		return errors.WithStack(err)
+		// TODO: Double check validations here to see why they fail
+		return c.Render(http.StatusInternalServerError, r.JSON("{\"error\":\"failed to create user\"}"))
 	}
 
 	if verrs.HasAny() {
@@ -50,13 +50,15 @@ func UserCreate(c buffalo.Context) error {
 
 	ts, err := u.CreateJWTToken()
 	if err != nil {
-		return errors.WithStack(err)
+		return c.Render(http.StatusInternalServerError, r.JSON("{\"error\":\"failed to create token\"}"))
 	}
 
 	res := struct {
-		Token string `json:"token"`
+		Token string       `json:"token"`
+		User *models.User  `json:"user"`
 	}{
-		ts,
+		Token: ts,
+		User:  u,
 	}
 
 	return c.Render(http.StatusOK, r.JSON(res))

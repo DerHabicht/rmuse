@@ -35,21 +35,18 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: media; Type: TABLE; Schema: public; Owner: the-hawk
+-- Name: follows; Type: TABLE; Schema: public; Owner: the-hawk
 --
 
-CREATE TABLE media (
-    id uuid NOT NULL,
-    user_id uuid NOT NULL,
-    uri character varying(255) NOT NULL,
-    filetype character varying(255) NOT NULL,
-    permission character varying(255) NOT NULL,
+CREATE TABLE follows (
+    follower uuid NOT NULL,
+    followed uuid NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
 
 
-ALTER TABLE media OWNER TO "the-hawk";
+ALTER TABLE follows OWNER TO "the-hawk";
 
 --
 -- Name: schema_migration; Type: TABLE; Schema: public; Owner: the-hawk
@@ -94,11 +91,11 @@ CREATE TABLE users (
 ALTER TABLE users OWNER TO "the-hawk";
 
 --
--- Name: media media_pkey; Type: CONSTRAINT; Schema: public; Owner: the-hawk
+-- Name: follows follows_pkey; Type: CONSTRAINT; Schema: public; Owner: the-hawk
 --
 
-ALTER TABLE ONLY media
-    ADD CONSTRAINT media_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY follows
+    ADD CONSTRAINT follows_pkey PRIMARY KEY (follower);
 
 
 --

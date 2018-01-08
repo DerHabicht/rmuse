@@ -65,6 +65,18 @@ func GetUserByID(tx *pop.Connection, id uuid.UUID) (*User, error) {
 	return &u, nil
 }
 
+func GetUserByUsername(tx *pop.Connection, username string) (*User, error) {
+	u := User{}
+	query := tx.Where("username = ?", username)
+	err := query.First(u)
+
+	if err != nil {
+		return nil, fmt.Errorf("could not find user %v", err)
+	}
+
+	return &u, nil
+}
+
 // Users is not required by pop and may be deleted
 type Users []User
 

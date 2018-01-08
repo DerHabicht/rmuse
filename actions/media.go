@@ -15,6 +15,12 @@ import (
 
 // MediaGet default implementation.
 func MediaGet(c buffalo.Context) error {
+	u, ok := c.Value("user").(*models.User)
+
+	if !ok {
+		u = nil
+	}
+
 	var media []*models.Medium
 	tx := c.Value("tx").(*pop.Connection)
 
@@ -22,7 +28,7 @@ func MediaGet(c buffalo.Context) error {
 		for _, uuidStr := range p {
 			uuid, err := uuid.FromString(uuidStr)
 			if err == nil {
-				m, err := models.GetMediumByID(tx, uuid)
+				m, err := models.GetMediumByID(tx, uuid, u)
 				if err == nil {
 					media = append(media, m)
 				}
@@ -31,7 +37,7 @@ func MediaGet(c buffalo.Context) error {
 		return c.Render(http.StatusOK, r.JSON(media))
 	}
 
-	return c.Render(200, r.HTML("media/get.html"))
+	return c.Render(http.StatusUnauthorized, nil)
 }
 
 // MediaUpload default implementation.

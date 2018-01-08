@@ -62,11 +62,11 @@ func AuthCreateSession(c buffalo.Context) error {
 	}
 
 	res := struct {
-		Token    string `json:"token"`
-		Username string `json:"username"`
+		Token string       `json:"token"`
+		User *models.User  `json:"user"`
 	}{
-		Token:ts,
-		Username: u.Username,
+		Token: ts,
+		User:  u,
 	}
 
 	return c.Render(http.StatusOK, r.JSON(res))

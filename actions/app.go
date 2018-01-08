@@ -37,8 +37,6 @@ func App() *buffalo.App {
 		// Remove to disable this.
 		app.Use(middleware.PopTransaction(models.DB))
 
-		app.GET("/", HomeHandler)
-
 		// API V1 Grouping
 		v1 := app.Group("/api/1")
 
@@ -52,8 +50,11 @@ func App() *buffalo.App {
 		// Users
 		v1.GET("/user", UserRead)
 		v1.POST("/user", UserCreate)
+		//v1.UPDATE("/user", UserUpdate)
 		v1.GET("/media", MediaGet)
 		v1.POST("/media", MediaUpload)
+		//v1.GET("/user/{username}", UserPageFetch)
+		//v1.POST("/user/{username}", UserPageUpdate)
 	}
 
 	return app
