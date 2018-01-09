@@ -327,7 +327,8 @@ func (as *ActionSuite) Test_Media_Get_Public_Unauthorized() {
 
 	res := as.JSON(fmt.Sprintf("/api/1/media?id=%s", id.String())).Get()
 
-	as.Equal(http.StatusUnauthorized, res.Code)
+	as.Equal(http.StatusOK, res.Code)
+	as.Equal("[]", res.Body.String())
 
 	as.DB.RawQuery("DELETE FROM media")
 }
@@ -382,10 +383,12 @@ func (as *ActionSuite) Test_Media_Get_Follower_Unauthorized() {
 	req := as.JSON(fmt.Sprintf("/api/1/media?id=%s", id.String()))
 	req.Headers["Authorization"], err = oreo.CreateJWTToken()
 	as.NoError(err)
+	fmt.Println(req.Headers["Authorization"])
 
 	res := req.Get()
 
-	as.Equal(http.StatusUnauthorized, res.Code)
+	as.Equal(http.StatusOK, res.Code)
+	as.Equal("[]", res.Body.String())
 
 	as.DB.RawQuery("DELETE FROM users")
 	as.DB.RawQuery("DELETE FROM media")
