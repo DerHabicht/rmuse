@@ -23,6 +23,8 @@ type User struct {
 	UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`
 	Email        string    `json:"email"      db:"email"`
 	Username     string    `json:"username"   db:"username"`
+	FirstName    string    `json:"firstname"  db:"first_name"`
+	LastName     string    `json:"lastname"   db:"last_name"`
 	Password     string    `json:"password"   db:"-"`
 	PasswordHash string    `json:"-"          db:"password_hash"`
 }
@@ -59,6 +61,17 @@ func (u *User) Create(tx *pop.Connection) (*validate.Errors, error) {
 	return tx.ValidateAndCreate(u)
 }
 
+func GetUserByID(tx *pop.Connection, id uuid.UUID) (*User, error) {
+	u := User{}
+	err := tx.Find(&u, id)
+
+	if err != nil {
+		return nil, fmt.Errorf("could not find user %v", err)
+	}
+
+	return &u, nil
+}
+
 // Users is not required by pop and may be deleted
 type Users []User
 
@@ -91,6 +104,22 @@ func (u *User) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 					return false
 				}
 				return !b
+			},
+		},
+		&validators.FuncValidator{
+			Field:   u.Email,
+			Name:    "Email",
+			Message: "email is empty",
+			Fn: func() bool {
+				return u.Email != ""
+			},
+		},
+		&validators.FuncValidator{
+			Field:   u.Username,
+			Name:    "Username",
+			Message: "username is empty",
+			Fn: func() bool {
+				return u.Username != ""
 			},
 		},
 		&validators.FuncValidator{
