@@ -47,7 +47,6 @@ func MediaUpload(c buffalo.Context) error {
 		return c.Render(http.StatusUnauthorized, r.JSON("must be logged in to upload files"))
 	}
 
-
 	m := &models.Medium{}
 
 	if err := c.Bind(m); err != nil {

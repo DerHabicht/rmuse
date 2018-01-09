@@ -2,6 +2,7 @@ package actions
 
 import (
 	"net/http"
+
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/derhabicht/rmuse/models"
@@ -9,9 +10,9 @@ import (
 
 // Test_Bad_User_Login attempts to login as an invalid user.
 func (as *ActionSuite) Test_Login_Bad_User() {
-	arg := struct{
-		Email     string `json:"email"`
-		Password  string `json:"password"`
+	arg := struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}{
 		Email:    "dog@example.com",
 		Password: "goodpassword",
@@ -27,7 +28,7 @@ func (as *ActionSuite) Test_Login_Bad_Password() {
 	ph, err := bcrypt.GenerateFromPassword([]byte("goodpassword"), bcrypt.DefaultCost)
 	as.NoError(err)
 
-	u := models.User {
+	u := models.User{
 		FirstName:    "Oreo",
 		LastName:     "Hawk",
 		Email:        "cat@example.com",
@@ -39,9 +40,9 @@ func (as *ActionSuite) Test_Login_Bad_Password() {
 	err = as.DB.Create(&u)
 	as.NoError(err)
 
-	arg := struct{
-		Email     string `json:"email"`
-		Password  string `json:"password"`
+	arg := struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}{
 		Email:    "cat@example.com",
 		Password: "badpassword",
@@ -59,7 +60,7 @@ func (as *ActionSuite) Test_Login_Good_User() {
 	ph, err := bcrypt.GenerateFromPassword([]byte("goodpassword"), bcrypt.DefaultCost)
 	as.NoError(err)
 
-	u := models.User {
+	u := models.User{
 		FirstName:    "Oreo",
 		LastName:     "Hawk",
 		Email:        "cat@example.com",
@@ -71,9 +72,9 @@ func (as *ActionSuite) Test_Login_Good_User() {
 	err = as.DB.Create(&u)
 	as.NoError(err)
 
-	arg := struct{
-		Email     string `json:"email"`
-		Password  string `json:"password"`
+	arg := struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}{
 		Email:    "cat@example.com",
 		Password: "goodpassword",
@@ -90,5 +91,3 @@ func (as *ActionSuite) Test_Login_Good_User() {
 
 	as.DB.RawQuery("DELETE FROM users")
 }
-
-

@@ -1,3 +1,2 @@
 drop_table("media")
-drop_table("follows")
 drop_column("users", "avatar")

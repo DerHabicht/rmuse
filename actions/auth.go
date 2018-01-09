@@ -25,8 +25,8 @@ func AuthCreateSession(c buffalo.Context) error {
 	}
 
 	type argument struct {
-		Email     string `json:"email"`
-		Password  string `json:"password"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
 
 	arg := &argument{}
@@ -34,7 +34,7 @@ func AuthCreateSession(c buffalo.Context) error {
 		return errors.WithStack(err)
 	}
 
-	u := &models.User {
+	u := &models.User{
 		Email: arg.Email,
 	}
 
@@ -63,7 +63,7 @@ func AuthCreateSession(c buffalo.Context) error {
 
 	res := struct {
 		Token string       `json:"token"`
-		User *models.User  `json:"user"`
+		User  *models.User `json:"user"`
 	}{
 		Token: ts,
 		User:  u,

@@ -56,6 +56,18 @@ func GetMediumByID(tx *pop.Connection, id uuid.UUID, u *User) (*Medium, error) {
 	return &m, nil
 }
 
+func GetMediumIDByURI(tx *pop.Connection, uri string) (uuid.UUID, error) {
+	m := Medium{}
+	query := tx.Where("uri = ?", uri)
+	err := query.First(&m)
+
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	return m.ID, nil
+}
+
 // String is not required by pop and may be deleted
 func (m Medium) String() string {
 	jm, _ := json.Marshal(m)

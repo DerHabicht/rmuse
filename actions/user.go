@@ -11,7 +11,7 @@ import (
 
 // UserCreate default implementation.
 func UserCreate(c buffalo.Context) error {
-	type argument struct{
+	type argument struct {
 		FirstName string `json:"firstname"`
 		LastName  string `json:"lastname"`
 		Email     string `json:"email"`
@@ -30,7 +30,7 @@ func UserCreate(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.JSON("{\"error\":\"cannot hash password\"}"))
 	}
 
-	u := &models.User {
+	u := &models.User{
 		FirstName:    arg.FirstName,
 		LastName:     arg.LastName,
 		Email:        arg.Email,
@@ -57,7 +57,7 @@ func UserCreate(c buffalo.Context) error {
 
 	res := struct {
 		Token string       `json:"token"`
-		User *models.User  `json:"user"`
+		User  *models.User `json:"user"`
 	}{
 		Token: ts,
 		User:  u,

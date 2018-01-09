@@ -39,6 +39,7 @@ SET default_with_oids = false;
 --
 
 CREATE TABLE follows (
+    id uuid NOT NULL,
     follower uuid NOT NULL,
     followed uuid NOT NULL,
     created_at timestamp without time zone NOT NULL,
@@ -101,7 +102,7 @@ ALTER TABLE users OWNER TO "the-hawk";
 --
 
 ALTER TABLE ONLY follows
-    ADD CONSTRAINT follows_pkey PRIMARY KEY (follower);
+    ADD CONSTRAINT follows_pkey PRIMARY KEY (id);
 
 
 --
