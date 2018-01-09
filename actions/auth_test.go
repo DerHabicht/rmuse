@@ -8,7 +8,7 @@ import (
 )
 
 // Test_Bad_User_Login attempts to login as an invalid user.
-func (as *ActionSuite) Test_Bad_User_Login() {
+func (as *ActionSuite) Test_Login_Bad_User() {
 	arg := struct{
 		Email     string `json:"email"`
 		Password  string `json:"password"`
@@ -19,10 +19,26 @@ func (as *ActionSuite) Test_Bad_User_Login() {
 
 	res := as.JSON("/api/1/login").Post(arg)
 	as.Equal(http.StatusUnprocessableEntity, res.Code)
+	as.Contains(res.Body.String(), "invalid email or password")
 }
 
 // Test_Bad_Password_Login attempts to login as a valid user with an invalid password.
-func (as *ActionSuite) Test_Bad_Password_Login() {
+func (as *ActionSuite) Test_Login_Bad_Password() {
+	ph, err := bcrypt.GenerateFromPassword([]byte("goodpassword"), bcrypt.DefaultCost)
+	as.NoError(err)
+
+	u := models.User {
+		FirstName:    "Oreo",
+		LastName:     "Hawk",
+		Email:        "cat@example.com",
+		Username:     "oreo",
+		UserType:     "artist",
+		PasswordHash: string(ph),
+	}
+
+	err = as.DB.Create(&u)
+	as.NoError(err)
+
 	arg := struct{
 		Email     string `json:"email"`
 		Password  string `json:"password"`
@@ -33,10 +49,13 @@ func (as *ActionSuite) Test_Bad_Password_Login() {
 
 	res := as.JSON("/api/1/login").Post(arg)
 	as.Equal(http.StatusUnprocessableEntity, res.Code)
+	as.Contains(res.Body.String(), "invalid email or password")
+
+	as.DB.RawQuery("DELETE FROM users")
 }
 
 // Test_Good_User_Login attempts to login as a valid user with a good password.
-func (as *ActionSuite) Test_Good_User_Login() {
+func (as *ActionSuite) Test_Login_Good_User() {
 	ph, err := bcrypt.GenerateFromPassword([]byte("goodpassword"), bcrypt.DefaultCost)
 	as.NoError(err)
 
@@ -46,6 +65,7 @@ func (as *ActionSuite) Test_Good_User_Login() {
 		Email:        "cat@example.com",
 		Username:     "oreo",
 		PasswordHash: string(ph),
+		UserType:     "artist",
 	}
 
 	err = as.DB.Create(&u)
@@ -68,8 +88,7 @@ func (as *ActionSuite) Test_Good_User_Login() {
 	as.Contains(res.Body.String(), "oreo")
 	as.NotContains(res.Body.String(), "password")
 
-	err = as.DB.Destroy(&u)
-	as.NoError(err)
+	as.DB.RawQuery("DELETE FROM users")
 }
 
 

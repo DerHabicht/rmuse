@@ -35,6 +35,20 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- Name: follows; Type: TABLE; Schema: public; Owner: the-hawk
+--
+
+CREATE TABLE follows (
+    follower uuid NOT NULL,
+    followed uuid NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE follows OWNER TO "the-hawk";
+
+--
 -- Name: media; Type: TABLE; Schema: public; Owner: the-hawk
 --
 
@@ -74,11 +88,21 @@ CREATE TABLE users (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     first_name character varying(255),
-    last_name character varying(255)
+    last_name character varying(255),
+    avatar uuid,
+    role character varying(255) NOT NULL
 );
 
 
 ALTER TABLE users OWNER TO "the-hawk";
+
+--
+-- Name: follows follows_pkey; Type: CONSTRAINT; Schema: public; Owner: the-hawk
+--
+
+ALTER TABLE ONLY follows
+    ADD CONSTRAINT follows_pkey PRIMARY KEY (follower);
+
 
 --
 -- Name: media media_pkey; Type: CONSTRAINT; Schema: public; Owner: the-hawk

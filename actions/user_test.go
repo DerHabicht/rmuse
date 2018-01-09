@@ -14,12 +14,14 @@ func (as *ActionSuite) Test_User_Create() {
 		Email     string `json:"email"`
 		Username  string `json:"username"`
 		Password  string `json:"password"`
+		UserType  string `json:"type"`
 	}{
 		FirstName: "Oreo",
 		LastName:  "Hawk",
 		Email:     "cat@example.com",
 		Username:  "oreo",
 		Password:  "goodpassword",
+		UserType:  "artist",
 	}
 
 	res := as.JSON("/api/1/user").Post(arg)
@@ -31,11 +33,7 @@ func (as *ActionSuite) Test_User_Create() {
 	as.Contains(res.Body.String(), "oreo")
 	as.NotContains(res.Body.String(), "password")
 
-	u, err := models.GetUserByUsername(as.DB, "oreo")
-	as.NoError(err)
-
-	as.DB.Destroy(u)
-	as.NoError(err)
+	as.DB.RawQuery("DELETE FROM users")
 }
 
 func (as *ActionSuite) Test_User_Empty_Username_Create() {
@@ -45,12 +43,14 @@ func (as *ActionSuite) Test_User_Empty_Username_Create() {
 		Email     string `json:"email"`
 		Username  string `json:"username"`
 		Password  string `json:"password"`
+		UserType  string `json:"type"`
 	}{
 		FirstName: "Oreo",
 		LastName:  "Hawk",
 		Email:     "blackcat@example.com",
 		Username:  "",
 		Password:  "goodpassword",
+		UserType:  "artist",
 	}
 
 	res := as.JSON("/api/1/user").Post(arg)
@@ -65,17 +65,63 @@ func (as *ActionSuite) Test_User_Empty_Email_Create() {
 		Email     string `json:"email"`
 		Username  string `json:"username"`
 		Password  string `json:"password"`
+		UserType  string `json:"type"`
 	}{
 		FirstName: "Oreo",
 		LastName:  "Hawk",
 		Email:     "",
 		Username:  "oreo",
 		Password:  "goodpassword",
+		UserType:  "artist",
 	}
 
 	res := as.JSON("/api/1/user").Post(arg)
 	as.Equal(http.StatusUnprocessableEntity, res.Code)
 	as.Contains(res.Body.String(),"email is empty")
+}
+
+func (as *ActionSuite) Test_User_Empty_Type_Create() {
+	arg := struct{
+		FirstName string `json:"firstname"`
+		LastName  string `json:"lastname"`
+		Email     string `json:"email"`
+		Username  string `json:"username"`
+		Password  string `json:"password"`
+		UserType  string `json:"type"`
+	}{
+		FirstName: "Oreo",
+		LastName:  "Hawk",
+		Email:     "blackcat@example.com",
+		Username:  "oreo",
+		Password:  "goodpassword",
+		UserType:  "",
+	}
+
+	res := as.JSON("/api/1/user").Post(arg)
+	as.Equal(http.StatusUnprocessableEntity, res.Code)
+	as.Contains(res.Body.String(),"no user type specified")
+}
+
+func (as *ActionSuite) Test_User_Bad_Type_Create() {
+	arg := struct{
+		FirstName string `json:"firstname"`
+		LastName  string `json:"lastname"`
+		Email     string `json:"email"`
+		Username  string `json:"username"`
+		Password  string `json:"password"`
+		UserType  string `json:"type"`
+	}{
+		FirstName: "Oreo",
+		LastName:  "Hawk",
+		Email:     "blackcat@example.com",
+		Username:  "oreo",
+		Password:  "goodpassword",
+		UserType:  "cat",
+	}
+
+	res := as.JSON("/api/1/user").Post(arg)
+	as.Equal(http.StatusUnprocessableEntity, res.Code)
+	as.Contains(res.Body.String(),"user type must be 'artist' or 'follower'")
 }
 
 func (as *ActionSuite) Test_User_Duplicate_Username_Create() {
@@ -88,6 +134,7 @@ func (as *ActionSuite) Test_User_Duplicate_Username_Create() {
 		Email:        "cat@example.com",
 		Username:     "oreo",
 		PasswordHash: string(ph),
+		UserType:  "artist",
 	}
 
 	err = as.DB.Create(&u)
@@ -99,20 +146,21 @@ func (as *ActionSuite) Test_User_Duplicate_Username_Create() {
 		Email     string `json:"email"`
 		Username  string `json:"username"`
 		Password  string `json:"password"`
+		UserType  string `json:"type"`
 	}{
 		FirstName: "Oreo",
 		LastName:  "Hawk",
 		Email:     "blackcat@example.com",
 		Username:  "oreo",
 		Password:  "goodpassword",
+		UserType:  "artist",
 	}
 
 	res := as.JSON("/api/1/user").Post(arg)
 	as.Equal(http.StatusUnprocessableEntity, res.Code)
 	as.Contains(res.Body.String(),"username oreo is already in use")
 
-	err = as.DB.Destroy(&u)
-	as.NoError(err)
+	as.DB.RawQuery("DELETE FROM users")
 }
 
 func (as *ActionSuite) Test_User_Duplicate_Email_Create() {
@@ -125,6 +173,7 @@ func (as *ActionSuite) Test_User_Duplicate_Email_Create() {
 		Email:        "cat@example.com",
 		Username:     "oreo",
 		PasswordHash: string(ph),
+		UserType:     "artist",
 	}
 
 	err = as.DB.Create(&u)
@@ -136,18 +185,19 @@ func (as *ActionSuite) Test_User_Duplicate_Email_Create() {
 		Email     string `json:"email"`
 		Username  string `json:"username"`
 		Password  string `json:"password"`
+		UserType  string `json:"type"`
 	}{
 		FirstName: "Oreo",
 		LastName:  "Hawk",
 		Email:     "cat@example.com",
 		Username:  "cat",
 		Password:  "goodpassword",
+		UserType:     "artist",
 	}
 
 	res := as.JSON("/api/1/user").Post(arg)
 	as.Equal(http.StatusUnprocessableEntity, res.Code)
 	as.Contains(res.Body.String(),"a user with email cat@example.com already exists")
 
-	err = as.DB.Destroy(&u)
-	as.NoError(err)
+	as.DB.RawQuery("DELETE FROM users")
 }

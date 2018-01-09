@@ -23,6 +23,7 @@ type User struct {
 	Username     string    `json:"username"   db:"username"`
 	FirstName    string    `json:"firstname"  db:"first_name"`
 	LastName     string    `json:"lastname"   db:"last_name"`
+	UserType     string    `json:"type"       db:"role"`
 	PasswordHash string    `json:"-"          db:"password_hash"`
 }
 
@@ -139,6 +140,22 @@ func (u *User) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 					return false
 				}
 				return !b
+			},
+		},
+		&validators.FuncValidator{
+			Field:   u.UserType,
+			Name:    "Role",
+			Message: "no user type specified",
+			Fn: func() bool {
+				return u.UserType != ""
+			},
+		},
+		&validators.FuncValidator{
+			Field:   u.Username,
+			Name:    "Username",
+			Message: "user type must be 'artist' or 'follower'",
+			Fn: func() bool {
+				return u.UserType == "artist" || u.UserType == "follower"
 			},
 		},
 	), err

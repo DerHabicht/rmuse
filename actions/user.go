@@ -16,6 +16,7 @@ func UserCreate(c buffalo.Context) error {
 		LastName  string `json:"lastname"`
 		Email     string `json:"email"`
 		Username  string `json:"username"`
+		UserType  string `json:"type"`
 		Password  string `json:"password"`
 	}
 
@@ -34,6 +35,7 @@ func UserCreate(c buffalo.Context) error {
 		LastName:     arg.LastName,
 		Email:        arg.Email,
 		Username:     arg.Username,
+		UserType:     arg.UserType,
 		PasswordHash: string(ph),
 	}
 
