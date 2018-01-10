@@ -1,0 +1,2 @@
+drop_column("media", "posx")
+drop_column("media", "posy")

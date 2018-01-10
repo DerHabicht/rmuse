@@ -1,0 +1,9 @@
+create_table("media", func(t) {
+	t.Column("id",         "uuid",   {"primary": true})
+	t.Column("user_id",    "uuid",   {})
+	t.Column("uri",        "string", {"unique": true})
+	t.Column("filetype",   "string", {})
+	t.Column("permission", "string", {})
+})
+
+add_column("users", "avatar",  "uuid", {"null": true})

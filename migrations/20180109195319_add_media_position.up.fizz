@@ -1,0 +1,2 @@
+add_column("media", "posx", "int", {"null": true})
+add_column("media", "posy", "int", {"null": true})
