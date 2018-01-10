@@ -12,9 +12,7 @@ import (
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
 	"github.com/markbates/validate/validators"
-	"github.com/pkg/errors"
 	"github.com/satori/go.uuid"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
@@ -25,7 +23,7 @@ type User struct {
 	Username     string    `json:"username"   db:"username"`
 	FirstName    string    `json:"firstname"  db:"first_name"`
 	LastName     string    `json:"lastname"   db:"last_name"`
-	Password     string    `json:"password"   db:"-"`
+	UserType     string    `json:"type"       db:"role"`
 	PasswordHash string    `json:"-"          db:"password_hash"`
 }
 
@@ -53,17 +51,31 @@ func (u *User) CreateJWTToken() (string, error) {
 
 func (u *User) Create(tx *pop.Connection) (*validate.Errors, error) {
 	u.Email = strings.ToLower(u.Email)
-	ph, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return validate.NewErrors(), errors.WithStack(err)
-	}
-	u.PasswordHash = string(ph)
+
 	return tx.ValidateAndCreate(u)
+}
+
+func (u *User) Update(tx *pop.Connection) (*validate.Errors, error) {
+	u.Email = strings.ToLower(u.Email)
+
+	return tx.ValidateAndUpdate(u)
 }
 
 func GetUserByID(tx *pop.Connection, id uuid.UUID) (*User, error) {
 	u := User{}
 	err := tx.Find(&u, id)
+
+	if err != nil {
+		return nil, fmt.Errorf("could not find user %v", err)
+	}
+
+	return &u, nil
+}
+
+func GetUserByUsername(tx *pop.Connection, username string) (*User, error) {
+	u := User{}
+	query := tx.Where("username = ?", username)
+	err := query.First(&u)
 
 	if err != nil {
 		return nil, fmt.Errorf("could not find user %v", err)
@@ -84,12 +96,6 @@ func (u Users) String() string {
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
 func (u *User) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (u *User) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 	var err error
 	return validate.Validate(
 		&validators.FuncValidator{
@@ -136,7 +142,29 @@ func (u *User) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 				return !b
 			},
 		},
+		&validators.FuncValidator{
+			Field:   u.UserType,
+			Name:    "Role",
+			Message: "no user type specified",
+			Fn: func() bool {
+				return u.UserType != ""
+			},
+		},
+		&validators.FuncValidator{
+			Field:   u.Username,
+			Name:    "Username",
+			Message: "user type must be 'artist' or 'follower'",
+			Fn: func() bool {
+				return u.UserType == "artist" || u.UserType == "follower"
+			},
+		},
 	), err
+}
+
+// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
+// This method is not required and may be deleted.
+func (u *User) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
+	return validate.NewErrors(), nil
 }
 
 // ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.

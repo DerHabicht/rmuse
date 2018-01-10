@@ -12,11 +12,11 @@ import (
 	"github.com/gobuffalo/envy"
 	"github.com/markbates/pop"
 	"github.com/pkg/errors"
+	"github.com/satori/go.uuid"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/derhabicht/rmuse/models"
-	"github.com/satori/go.uuid"
 )
 
 func AuthCreateSession(c buffalo.Context) error {
@@ -24,9 +24,18 @@ func AuthCreateSession(c buffalo.Context) error {
 		return c.Error(http.StatusUnprocessableEntity, fmt.Errorf("invalid email or password"))
 	}
 
-	u := &models.User{}
-	if err := c.Bind(u); err != nil {
+	type argument struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	arg := &argument{}
+	if err := c.Bind(arg); err != nil {
 		return errors.WithStack(err)
+	}
+
+	u := &models.User{
+		Email: arg.Email,
 	}
 
 	tx := c.Value("tx").(*pop.Connection)
@@ -42,14 +51,10 @@ func AuthCreateSession(c buffalo.Context) error {
 	}
 
 	// Test the user's password
-	err = bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(u.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(arg.Password))
 	if err != nil {
 		return bad()
 	}
-
-	// Now that the user has been authenticated, we need to drop the password from the user struct so we don't end up
-	// sending the password back in our response later.
-	u.Password = ""
 
 	ts, err := u.CreateJWTToken()
 	if err != nil {
@@ -57,11 +62,11 @@ func AuthCreateSession(c buffalo.Context) error {
 	}
 
 	res := struct {
-		Token string    `json:"token"`
-		Username string `json:"username"`
+		Token string       `json:"token"`
+		User  *models.User `json:"user"`
 	}{
-		ts,
-		u.Username,
+		Token: ts,
+		User:  u,
 	}
 
 	return c.Render(http.StatusOK, r.JSON(res))
@@ -72,7 +77,8 @@ func VerifyToken(next buffalo.Handler) buffalo.Handler {
 		tokenString := c.Request().Header.Get("Authorization")
 
 		if len(tokenString) == 0 {
-			return c.Error(http.StatusUnauthorized, fmt.Errorf("no token set in headers"))
+			c.Set("user", nil)
+			return next(c)
 		}
 
 		// parsing token
