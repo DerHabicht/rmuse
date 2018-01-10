@@ -23,7 +23,7 @@ type User struct {
 	Username     string    `json:"username"   db:"username"`
 	FirstName    string    `json:"firstname"  db:"first_name"`
 	LastName     string    `json:"lastname"   db:"last_name"`
-	UserType     string    `json:"type"       db:"role"`
+	Artist       bool      `json:"artist"     db:"artist"`
 	PasswordHash string    `json:"-"          db:"password_hash"`
 }
 
@@ -59,6 +59,25 @@ func (u *User) Update(tx *pop.Connection) (*validate.Errors, error) {
 	u.Email = strings.ToLower(u.Email)
 
 	return tx.ValidateAndUpdate(u)
+}
+
+func (u *User) Follows(tx *pop.Connection, username string) bool {
+	fu, err := GetUserByUsername(tx, username)
+
+	if err != nil {
+		return false
+	}
+
+	fol := &Follow{}
+
+	query := tx.Where("follower = ? AND followed = ?", u.ID, fu.ID)
+	err = query.First(fol)
+
+	if err != nil || fol == nil {
+		return false
+	}
+
+	return true
 }
 
 func GetUserByID(tx *pop.Connection, id uuid.UUID) (*User, error) {
@@ -140,22 +159,6 @@ func (u *User) Validate(tx *pop.Connection) (*validate.Errors, error) {
 					return false
 				}
 				return !b
-			},
-		},
-		&validators.FuncValidator{
-			Field:   u.UserType,
-			Name:    "Role",
-			Message: "no user type specified",
-			Fn: func() bool {
-				return u.UserType != ""
-			},
-		},
-		&validators.FuncValidator{
-			Field:   u.Username,
-			Name:    "Username",
-			Message: "user type must be 'artist' or 'follower'",
-			Fn: func() bool {
-				return u.UserType == "artist" || u.UserType == "follower"
 			},
 		},
 	), err

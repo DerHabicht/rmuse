@@ -17,7 +17,7 @@ func UserCreate(c buffalo.Context) error {
 		LastName  string `json:"lastname"`
 		Email     string `json:"email"`
 		Username  string `json:"username"`
-		UserType  string `json:"type"`
+		Artist    bool   `json:"artist"`
 		Password  string `json:"password"`
 	}
 
@@ -36,7 +36,7 @@ func UserCreate(c buffalo.Context) error {
 		LastName:     arg.LastName,
 		Email:        arg.Email,
 		Username:     arg.Username,
-		UserType:     arg.UserType,
+		Artist:       arg.Artist,
 		PasswordHash: string(ph),
 	}
 
@@ -79,7 +79,7 @@ func UserUpdate(c buffalo.Context) error {
 		LastName  string `json:"lastname"`
 		Email     string `json:"email"`
 		Username  string `json:"username"`
-		UserType  string `json:"type"`
+		Artist    bool   `json:"artist"`
 		Password  string `json:"password"`
 	}
 
@@ -98,7 +98,7 @@ func UserUpdate(c buffalo.Context) error {
 		LastName:     arg.LastName,
 		Email:        arg.Email,
 		Username:     arg.Username,
-		UserType:     arg.UserType,
+		Artist:       arg.Artist,
 		PasswordHash: string(ph),
 	}
 
@@ -116,8 +116,8 @@ func UserUpdate(c buffalo.Context) error {
 	if cu.Username != u.Username {
 		cu.Username = u.Username
 	}
-	if cu.UserType != u.UserType {
-		cu.UserType = u.UserType
+	if cu.Artist != u.Artist {
+		cu.Artist = u.Artist
 	}
 	if cu.PasswordHash != u.PasswordHash {
 		cu.PasswordHash = u.PasswordHash
@@ -150,5 +150,19 @@ func UserPageFetch(c buffalo.Context) error {
 		return c.Error(http.StatusInternalServerError, fmt.Errorf("fetch of models failed %v", err))
 	}
 
-	return c.Render(http.StatusOK, r.JSON(m))
+	u, ok := c.Value("user").(*models.User)
+
+	if !ok {
+		u = nil
+	}
+
+	res := struct{
+		Following bool `json:following`
+		Media     *models.Media `json:images`
+	}{
+		Following: u.Follows(tx, username),
+		Media: m,
+	}
+
+	return c.Render(http.StatusOK, r.JSON(res))
 }
