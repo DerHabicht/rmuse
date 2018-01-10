@@ -60,7 +60,9 @@ CREATE TABLE media (
     filetype character varying(255) NOT NULL,
     permission character varying(255) NOT NULL,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    posx integer,
+    posy integer
 );
 
 

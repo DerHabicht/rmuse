@@ -58,7 +58,7 @@ func App() *buffalo.App {
 		// Users
 		v1.GET("/user", UserRead)
 		v1.POST("/user", UserCreate)
-		//v1.UPDATE("/user", UserUpdate)
+		v1.PUT("/user", UserUpdate)
 		v1.GET("/media", MediaGet)
 		v1.POST("/media", MediaUpload)
 		v1.GET("/user/{username}", UserPageFetch)

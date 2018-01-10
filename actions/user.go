@@ -67,6 +67,75 @@ func UserCreate(c buffalo.Context) error {
 	return c.Render(http.StatusOK, r.JSON(res))
 }
 
+func UserUpdate(c buffalo.Context) error {
+	cu, ok := c.Value("user").(*models.User)
+
+	if !ok {
+		return c.Render(http.StatusUnauthorized, r.JSON("{\"error\":\"not authorized to update user\""))
+	}
+
+	type argument struct {
+		FirstName string `json:"firstname"`
+		LastName  string `json:"lastname"`
+		Email     string `json:"email"`
+		Username  string `json:"username"`
+		UserType  string `json:"type"`
+		Password  string `json:"password"`
+	}
+
+	arg := &argument{}
+	if err := c.Bind(arg); err != nil {
+		return c.Render(http.StatusUnprocessableEntity, r.JSON("{\"error\":\"malformed argument body\"}"))
+	}
+
+	ph, err := bcrypt.GenerateFromPassword([]byte(arg.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return c.Render(http.StatusInternalServerError, r.JSON("{\"error\":\"cannot hash password\"}"))
+	}
+
+	u := &models.User{
+		FirstName:    arg.FirstName,
+		LastName:     arg.LastName,
+		Email:        arg.Email,
+		Username:     arg.Username,
+		UserType:     arg.UserType,
+		PasswordHash: string(ph),
+	}
+
+	if cu.FirstName != u.FirstName {
+		c.Logger().Debug(cu.FirstName)
+		c.Logger().Debug(u.FirstName)
+		cu.FirstName = u.FirstName
+	}
+	if cu.LastName != u.LastName {
+		cu.LastName = u.LastName
+	}
+	if cu.Email != u.Email {
+		cu.Email = u.Email
+	}
+	if cu.Username != u.Username {
+		cu.Username = u.Username
+	}
+	if cu.UserType != u.UserType {
+		cu.UserType = u.UserType
+	}
+	if cu.PasswordHash != u.PasswordHash {
+		cu.PasswordHash = u.PasswordHash
+	}
+
+	tx := c.Value("tx").(*pop.Connection)
+	verrs, err := cu.Update(tx)
+	if err != nil {
+		return c.Render(http.StatusInternalServerError, r.JSON("{\"error\":\"failed to create user\"}"))
+	}
+
+	if verrs.HasAny() {
+		return c.Render(http.StatusUnprocessableEntity, r.JSON(verrs))
+	}
+
+	return c.Render(http.StatusOK, r.JSON(cu))
+}
+
 func UserRead(c buffalo.Context) error {
 	return c.Render(http.StatusOK, r.JSON(c.Value("user")))
 }

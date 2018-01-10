@@ -20,7 +20,7 @@ func MediaGet(c buffalo.Context) error {
 		u = nil
 	}
 
-	var media []*models.Medium
+	media := make([]*models.Medium, 0)
 	tx := c.Value("tx").(*pop.Connection)
 
 	if p, ok := c.Params().(url.Values)["id"]; ok {
@@ -36,7 +36,7 @@ func MediaGet(c buffalo.Context) error {
 		return c.Render(http.StatusOK, r.JSON(media))
 	}
 
-	return c.Render(http.StatusUnauthorized, nil)
+	return c.Render(http.StatusInternalServerError, nil)
 }
 
 // MediaUpload default implementation.
