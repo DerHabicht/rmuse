@@ -201,3 +201,28 @@ func (as *ActionSuite) Test_User_Duplicate_Email_Create() {
 
 	as.DB.RawQuery("DELETE FROM users")
 }
+
+func (as *ActionSuite) Test_User_Page_Fetch() {
+	ph, err := bcrypt.GenerateFromPassword([]byte("goodpassword"), bcrypt.DefaultCost)
+	as.NoError(err)
+
+	u := models.User{
+		FirstName:    "Oreo",
+		LastName:     "Hawk",
+		Email:        "cat@example.com",
+		Username:     "oreo",
+		PasswordHash: string(ph),
+		UserType:     "artist",
+	}
+
+	err = as.DB.Create(&u)
+	as.NoError(err)
+
+	oreo, err := models.GetUserByUsername(as.DB, "oreo")
+
+	res := as.JSON("/api/1/user").Post(arg)
+	as.Equal(http.StatusUnprocessableEntity, res.Code)
+	as.Contains(res.Body.String(), "a user with email cat@example.com already exists")
+
+	as.DB.RawQuery("DELETE FROM users")
+}

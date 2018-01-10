@@ -7,6 +7,7 @@ import (
 
 	"github.com/derhabicht/rmuse/models"
 	"github.com/gobuffalo/x/sessions"
+	"net/http"
 )
 
 // ENV is used to help switch settings based on where the
@@ -32,6 +33,13 @@ func App() *buffalo.App {
 			app.Use(middleware.ParameterLogger)
 		}
 
+		app.ErrorHandlers[http.StatusInternalServerError] = func(status int, err error, c buffalo.Context) error {
+			res := c.Response()
+			res.WriteHeader(http.StatusInternalServerError)
+			res.Write([]byte("{\"error\":\"an error occurred on the server\"}"))
+			return nil
+		}
+
 		// Wraps each request in a transaction.
 		//  c.Value("tx").(*pop.PopTransaction)
 		// Remove to disable this.
@@ -53,9 +61,9 @@ func App() *buffalo.App {
 		//v1.UPDATE("/user", UserUpdate)
 		v1.GET("/media", MediaGet)
 		v1.POST("/media", MediaUpload)
-		//v1.GET("/user/{username}", UserPageFetch)
-		//v1.POST("/user/{username}", UserPageUpdate)
+		v1.GET("/user/{username}", UserPageFetch)
 	}
 
 	return app
 }
+

@@ -19,6 +19,8 @@ type Medium struct {
 	User       uuid.UUID `json:"userid"     db:"user_id"`
 	Filetype   string    `json:"type"       db:"filetype"`
 	Permission string    `json:"permission" db:"permission"`
+	PosX       int       `json:"col"        db:"posx"`
+	PosY       int       `json:"row"        db:"posy"`
 }
 
 func (m *Medium) Create(tx *pop.Connection) (*validate.Errors, error) {
@@ -66,6 +68,23 @@ func GetMediumIDByURI(tx *pop.Connection, uri string) (uuid.UUID, error) {
 	}
 
 	return m.ID, nil
+}
+
+func GetMediaByUsername(tx *pop.Connection, username string) (*Media, error) {
+	m := Media{}
+
+	u, err := GetUserByUsername(tx, username)
+	if err != nil {
+		return nil, err
+	}
+
+	query := tx.Where("user_id = ?", u.ID)
+	err = query.All(&m)
+	if err != nil {
+		return nil, err
+	}
+
+	return &m, nil
 }
 
 // String is not required by pop and may be deleted

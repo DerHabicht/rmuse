@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/derhabicht/rmuse/models"
@@ -68,4 +69,17 @@ func UserCreate(c buffalo.Context) error {
 
 func UserRead(c buffalo.Context) error {
 	return c.Render(http.StatusOK, r.JSON(c.Value("user")))
+}
+
+func UserPageFetch(c buffalo.Context) error {
+	username := c.Param("username")
+	tx := c.Value("tx").(*pop.Connection)
+
+	m, err := models.GetMediaByUsername(tx, username)
+
+	if err != nil {
+		return c.Error(http.StatusInternalServerError, fmt.Errorf("fetch of models failed %v", err))
+	}
+
+	return c.Render(http.StatusOK, r.JSON(m))
 }
