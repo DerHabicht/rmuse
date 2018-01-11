@@ -17,6 +17,14 @@ type Follow struct {
 	Followed  uuid.UUID `json:"-"          db:"followed"`
 }
 
+func (f *Follow) Create(tx *pop.Connection) (*validate.Errors, error) {
+	return tx.ValidateAndCreate(f)
+}
+
+func (f *Follow) Delete(tx *pop.Connection) error {
+	return tx.Destroy(f)
+}
+
 // String is not required by pop and may be deleted
 func (f Follow) String() string {
 	jf, _ := json.Marshal(f)

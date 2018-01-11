@@ -62,6 +62,8 @@ func App() *buffalo.App {
 		v1.GET("/media", MediaGet)
 		v1.POST("/media", MediaUpload)
 		v1.GET("/user/{username}", UserPageFetch)
+		v1.POST("/user/{username}/follow", UserFollow)
+		v1.DELETE("/user/{username}/follow", UserUnfollow)
 	}
 
 	return app
