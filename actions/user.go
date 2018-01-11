@@ -166,3 +166,67 @@ func UserPageFetch(c buffalo.Context) error {
 
 	return c.Render(http.StatusOK, r.JSON(res))
 }
+
+func UserFollow(c buffalo.Context) error {
+	tx := c.Value("tx").(*pop.Connection)
+	u, ok := c.Value("user").(*models.User)
+
+	if !ok {
+		return c.Render(http.StatusUnauthorized, r.JSON("{\"error\":\"must be logged in to follow\"}"))
+	}
+
+	username := c.Param("username")
+	fu, err := models.GetUserByUsername(tx, username)
+
+	if err != nil {
+		emsg := struct{
+			Error string `json:"error"`
+		}{
+			Error: fmt.Sprintf("user %s does not exist", username),
+		}
+		return c.Render(http.StatusUnprocessableEntity, r.JSON(emsg))
+	}
+
+	f := &models.Follow{
+		Follower: u.ID,
+		Followed: fu.ID,
+	}
+
+	_, err = f.Create(tx)
+
+	if err != nil {
+		emsg := struct{
+			Error string `json:"error"`
+		}{
+			Error: fmt.Sprintf("unable to follow user %s", username),
+		}
+		return c.Render(http.StatusInternalServerError, r.JSON(emsg))
+	}
+
+	return c.Render(http.StatusOK, r.JSON(""))
+}
+
+func UserUnfollow(c buffalo.Context) error {
+	tx := c.Value("tx").(*pop.Connection)
+	u, ok := c.Value("user").(*models.User)
+
+	if !ok {
+		return c.Render(http.StatusUnauthorized, r.JSON("{\"error\":\"must be logged in to unfollow\"}"))
+	}
+
+	username := c.Param("username")
+	fu, err := models.GetUserByUsername(tx, username)
+
+	if err != nil {
+		return c.Render(http.StatusOK, r.JSON(""))
+	}
+
+	f := &models.Follow{
+		Follower: u.ID,
+		Followed: fu.ID,
+	}
+
+	f.Delete(tx)
+
+	return c.Render(http.StatusOK, r.JSON(""))
+}
