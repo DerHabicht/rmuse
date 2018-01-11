@@ -21,7 +21,12 @@ import (
 
 func AuthCreateSession(c buffalo.Context) error {
 	bad := func() error {
-		return c.Error(http.StatusUnprocessableEntity, fmt.Errorf("invalid email or password"))
+		emsg := struct{
+			Errors []string `json:"errors"`
+		}{
+			Errors: []string{"invalid email or password"},
+		}
+		return c.Render(http.StatusUnprocessableEntity, r.JSON(emsg))
 	}
 
 	type argument struct {
