@@ -19,6 +19,10 @@ import (
 	"github.com/derhabicht/rmuse/models"
 )
 
+func Teapot(c buffalo.Context) error {
+	return c.Render(http.StatusTeapot, r.String("tip me over and pour me out"))
+}
+
 func AuthCreateSession(c buffalo.Context) error {
 	bad := func() error {
 		emsg := struct{

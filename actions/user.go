@@ -140,6 +140,7 @@ func UserRead(c buffalo.Context) error {
 	return c.Render(http.StatusOK, r.JSON(c.Value("user")))
 }
 
+// TODO: Double check the user ID issue
 func UserPageFetch(c buffalo.Context) error {
 	username := c.Param("username")
 	tx := c.Value("tx").(*pop.Connection)
@@ -157,8 +158,8 @@ func UserPageFetch(c buffalo.Context) error {
 	}
 
 	res := struct{
-		Following bool `json:following`
-		Media     *models.Media `json:images`
+		Following bool          `json:"following"`
+		Media     *models.Media `json:"images"`
 	}{
 		Following: u.Follows(tx, username),
 		Media: m,
@@ -166,6 +167,8 @@ func UserPageFetch(c buffalo.Context) error {
 
 	return c.Render(http.StatusOK, r.JSON(res))
 }
+
+LNPG
 
 func UserFollow(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
