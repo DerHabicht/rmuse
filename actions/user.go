@@ -140,7 +140,6 @@ func UserRead(c buffalo.Context) error {
 	return c.Render(http.StatusOK, r.JSON(c.Value("user")))
 }
 
-// TODO: Double check the user ID issue
 func UserPageFetch(c buffalo.Context) error {
 	username := c.Param("username")
 	tx := c.Value("tx").(*pop.Connection)
@@ -148,7 +147,12 @@ func UserPageFetch(c buffalo.Context) error {
 	m, err := models.GetMediaByUsername(tx, username)
 
 	if err != nil {
-		return c.Error(http.StatusInternalServerError, fmt.Errorf("fetch of models failed %v", err))
+		resp := struct{
+			Errors []string `json:"errors"`
+		}{
+			Errors: []string{fmt.Sprintf("user %s not found", username)},
+		}
+		return c.Render(http.StatusNotFound, r.JSON(resp))
 	}
 
 	u, ok := c.Value("user").(*models.User)
@@ -167,8 +171,6 @@ func UserPageFetch(c buffalo.Context) error {
 
 	return c.Render(http.StatusOK, r.JSON(res))
 }
-
-LNPG
 
 func UserFollow(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
