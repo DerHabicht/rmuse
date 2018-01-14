@@ -92,8 +92,7 @@ CREATE TABLE users (
     updated_at timestamp without time zone NOT NULL,
     first_name character varying(255),
     last_name character varying(255),
-    avatar uuid,
-    role character varying(255) NOT NULL
+    artist boolean DEFAULT false NOT NULL
 );
 
 

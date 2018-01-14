@@ -13,7 +13,7 @@ import (
 )
 
 type Medium struct {
-	ID         uuid.UUID `json:"id" db:"id"`
+	ID         uuid.UUID `json:"id"         db:"id"`
 	CreatedAt  time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at" db:"updated_at"`
 	URI        string    `json:"uri"        db:"uri"`
